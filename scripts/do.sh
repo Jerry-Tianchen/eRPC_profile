@@ -31,6 +31,7 @@ if [ "$#" -eq 2 ]; then
     numactl --cpunodebind=$numa_node --membind=$numa_node \
     ./build/$autorun_app $(cat apps/$autorun_app/config) \
     --process_id $epid --numa_node $numa_node
+
 fi
 
 # GDB mode

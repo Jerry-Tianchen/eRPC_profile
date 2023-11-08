@@ -61,7 +61,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   auto *c = static_cast<ServerContext *>(_context);
   erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&req_handle->pre_resp_msgbuf_,
                                                  FLAGS_resp_size);
-  printf("Received Data in req_handler\n");
+  memset(&req_handle->pre_resp_msgbuf_, "A", FLAGS_resp_size);
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
 }
 

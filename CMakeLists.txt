@@ -337,7 +337,7 @@ if(DPDK_NEEDED STREQUAL "true")
     else()
       set(RTE_SDK $ENV{RTE_SDK})
     endif()
-    set(DPDK_INSTALL_DIR "${RTE_SDK}/build/install/usr/local")
+    set(DPDK_INSTALL_DIR "/usr/local")
 
     # DPDK installs libraries into local/lib on Mariner, but
     # local/lib/x86_64-linux-gnu on Ubuntu

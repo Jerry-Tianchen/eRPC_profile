@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
       "-n",          "6",  // Memory channels
       "-m",          "1024", // Max memory in megabytes
       "--proc-type", "primary",
-      "--log-level", (ERPC_LOG_LEVEL >= ERPC_LOG_LEVEL_INFO) ? "8" : "0",
+      "--log-level", (ERPC_LOG_LEVEL >= ERPC_LOG_LEVEL_INFO) ? "lib.eal:debug" : "lib.eal:info",
       nullptr};
   // clang-format on
 

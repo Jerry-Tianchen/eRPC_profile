@@ -99,6 +99,7 @@ void DpdkTransport::setup_phy_port(uint16_t phy_port, size_t numa_node,
     rt_assert(ret == 0, "Failed to setup TX queue: " + std::to_string(i));
   }
 
+  ERPC_INFO("[DPDK_Init]Starting rte_eth_dev_start\n");
   rte_eth_dev_start(phy_port);
 }
 
