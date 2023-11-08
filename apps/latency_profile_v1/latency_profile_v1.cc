@@ -59,9 +59,11 @@ class ClientContext : public BasicAppContext {
 
 void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   auto *c = static_cast<ServerContext *>(_context);
-  erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&req_handle->pre_resp_msgbuf_,
+  erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
                                                  FLAGS_resp_size);
-  memset(&req_handle->pre_resp_msgbuf_, "A", FLAGS_resp_size);
+
+  memset(static_cast<void*>(&(req_handle->pre_resp_msgbuf_)), 'A', FLAGS_resp_size);
+
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
 }
 
@@ -125,7 +127,7 @@ inline void send_req(ClientContext &c) {
 
 void app_cont_func(void *_context, void *) {
   auto *c = static_cast<ClientContext *>(_context);
-  printf("Received data size %lu\n", c->resp_msgbuf_.get_data_size());
+  printf("Received Resp, content %s\n", c->resp_msgbuf_.buf_);
   assert(c->resp_msgbuf_.get_data_size() == FLAGS_resp_size);
 
   if (kAppVerbose) {
