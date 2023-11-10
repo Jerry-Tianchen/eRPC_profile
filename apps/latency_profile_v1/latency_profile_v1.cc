@@ -24,7 +24,7 @@ volatile sig_atomic_t ctrl_c_pressed = 0;
 void ctrl_c_handler(int) { ctrl_c_pressed = 1; }
 
 DEFINE_uint64(num_server_processes, 1, "Number of server processes");
-DEFINE_uint64(resp_size, 64, "Size of the server's RPC response in bytes");
+DEFINE_uint64(resp_size, 8, "Size of the server's RPC response in bytes");
 
 class ServerContext : public BasicAppContext {
  public:
@@ -62,7 +62,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
                                                  FLAGS_resp_size);
 
-  memset(static_cast<void*>(&(req_handle->pre_resp_msgbuf_)), 'A', FLAGS_resp_size);
+  memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
 }
@@ -127,7 +127,7 @@ inline void send_req(ClientContext &c) {
 
 void app_cont_func(void *_context, void *) {
   auto *c = static_cast<ClientContext *>(_context);
-  printf("Received Resp, content %s\n", c->resp_msgbuf_.buf_);
+  // printf("Received Resp, content %s\n", c->resp_msgbuf_.buf_);
   assert(c->resp_msgbuf_.get_data_size() == FLAGS_resp_size);
 
   if (kAppVerbose) {
