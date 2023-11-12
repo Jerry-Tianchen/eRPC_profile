@@ -15,7 +15,7 @@ static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
 static constexpr size_t kAppStartReqSize = 64;
-static constexpr size_t kAppEndReqSize = 1024;
+static constexpr size_t kAppEndReqSize = 2097512;
 
 // Precision factor for latency measurement
 static constexpr double kAppLatFac = erpc::kIsAzure ? 1.0 : 10.0;
@@ -62,7 +62,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
                                                  FLAGS_resp_size);
 
-  memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
+  // memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
 }
@@ -71,6 +71,8 @@ void server_func(erpc::Nexus *nexus) {
   printf("Latency: Running server, process ID %zu\n", FLAGS_process_id);
   std::vector<size_t> port_vec = flags_get_numa_ports(FLAGS_numa_node);
   uint8_t phy_port = port_vec.at(0);
+
+  printf("phy_port is %u\n", phy_port);
 
   ServerContext c;
   erpc::Rpc<erpc::CTransport> rpc(nexus, static_cast<void *>(&c), 0 /* tid */,
