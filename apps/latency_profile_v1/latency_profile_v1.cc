@@ -14,7 +14,7 @@
 static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
-static constexpr size_t kAppStartReqSize = 64;
+static constexpr size_t kAppStartReqSize = 8388608;
 static constexpr size_t kAppEndReqSize = 8388608;
 
 // Precision factor for latency measurement
