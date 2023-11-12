@@ -154,7 +154,7 @@ Buffer HugeAlloc::alloc_raw(size_t size, DoRegister do_register) {
 }
 
 Buffer HugeAlloc::alloc(size_t size) {
-  ERPC_INFO("Allocating HugePage Size %u\n", size);
+  ERPC_INFO("Allocating HugePage Size %lu\n", size);
   assert(size <= k_max_class_size);
 
   size_t size_class = get_class(size);
