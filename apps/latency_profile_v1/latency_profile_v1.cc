@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
 
   const size_t num_socket_cores =
       erpc::get_lcores_for_numa_node(FLAGS_numa_node).size();
-  const size_t affinity_core = FLAGS_process_id % num_socket_cores;
+  const size_t affinity_core = (FLAGS_process_id + 2) % num_socket_cores;
   printf("Latency: Will run on CPU core %zu\n", affinity_core);
   if (FLAGS_process_id >= num_socket_cores) {
     fprintf(stderr,
