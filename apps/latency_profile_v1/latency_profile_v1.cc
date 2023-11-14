@@ -15,7 +15,7 @@ static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
 static constexpr size_t kAppStartReqSize = 8;
-static constexpr size_t kAppEndReqSize = 64;
+static constexpr size_t kAppEndReqSize = 7000000;
 
 // Precision factor for latency measurement
 static constexpr double kAppLatFac = erpc::kIsAzure ? 1.0 : 10.0;
@@ -60,14 +60,14 @@ class ClientContext : public BasicAppContext {
 void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   auto *c = static_cast<ServerContext *>(_context);
 
-  printf("Start reqHandler\n");
+  // printf("Start reqHandler\n");
   erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
                                                  FLAGS_resp_size);
 
   // memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
-  printf("End reqHandler\n");
+  // printf("End reqHandler\n");
 }
 
 void server_func(erpc::Nexus *nexus) {
