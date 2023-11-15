@@ -79,8 +79,8 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   auto *c = static_cast<ServerContext *>(_context);
 
   // printf("Start reqHandler\n");
-  erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
-                                                 FLAGS_resp_size);
+  // erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
+  //                                                FLAGS_resp_size);
 
   // memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
@@ -166,13 +166,13 @@ void app_cont_func(void *_context, void *) {
   // printf("Received Resp, content %s\n", c->resp_msgbuf_.buf_);
   assert(c->resp_msgbuf_.get_data_size() == FLAGS_resp_size);
 
+  const double req_lat_us =
+      erpc::to_usec(erpc::rdtsc() - c->start_tsc_, c->rpc_->get_freq_ghz());
+
   if (kAppVerbose) {
     printf("Latency: Received response of size %zu bytes\n",
            c->resp_msgbuf_.get_data_size());
   }
-
-  const double req_lat_us =
-      erpc::to_usec(erpc::rdtsc() - c->start_tsc_, c->rpc_->get_freq_ghz());
 
   hdr_record_value(c->latency_hist_,
                    static_cast<int64_t>(req_lat_us * kAppLatFac));
