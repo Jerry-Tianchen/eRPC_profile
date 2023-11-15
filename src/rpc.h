@@ -1092,6 +1092,10 @@ class Rpc {
   /// but some applications might benefit from a larger preallocated buffer,
   /// at the expense of increased memory utilization.
   size_t pre_resp_msgbuf_size_ = TTr::kMaxDataPerPkt;
+
+  /*** Jerry Idle Time Calculation ***/
+  uint64_t cycle_in_nonIdle_processing = 0;
+  bool first_pkt_received = false;
 };
 
 // This goes at the end of every Rpc implementation file to force compilation

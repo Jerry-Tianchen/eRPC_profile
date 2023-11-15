@@ -2,11 +2,19 @@
 
 namespace erpc {
 
+
+
 template <class TTr>
 void Rpc<TTr>::process_comps_st() {
   assert(in_dispatch());
   const size_t num_pkts = transport_->rx_burst();
   if (num_pkts == 0) return;
+
+  /**** Jerry IDle percentage Calculation ***/
+  uint64_t start_time = rdtsc();
+  first_pkt_received = true;
+
+  /******************************************/
 
   // Measure RX burst size
   dpath_stat_inc(dpath_stats_.rx_burst_calls_, 1);
@@ -88,6 +96,9 @@ void Rpc<TTr>::process_comps_st() {
   // Technically, these RECVs can be posted immediately after rx_burst(), or
   // even in the rx_burst() code.
   transport_->post_recvs(num_pkts);
+  uint64_t end = rdtsc();
+  cycle_in_nonIdle_processing += end - start_time;
+
 }
 
 template <class TTr>
