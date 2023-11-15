@@ -5,17 +5,29 @@
 
 #include <cstring>
 
+
 #include "../apps_common.h"
 #include "HdrHistogram_c/src/hdr_histogram.h"
 #include "rpc.h"
 #include "util/autorun_helpers.h"
 #include "util/numautils.h"
+#include "util/timer.h"
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 
 static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
-static constexpr size_t kAppStartReqSize = 8;
-static constexpr size_t kAppEndReqSize = 12;
+// static constexpr size_t kAppStartReqSize = 8;
+// static constexpr size_t kAppEndReqSize = 12;
+
+// erpc::MsgBuffer server_preallocated_buf;
 
 // Precision factor for latency measurement
 static constexpr double kAppLatFac = erpc::kIsAzure ? 1.0 : 10.0;
@@ -25,6 +37,12 @@ void ctrl_c_handler(int) { ctrl_c_pressed = 1; }
 
 DEFINE_uint64(num_server_processes, 1, "Number of server processes");
 DEFINE_uint64(resp_size, 8, "Size of the server's RPC response in bytes");
+DEFINE_uint64(kAppStartReqSize, 8, "StartReqSize");
+DEFINE_uint64(kAppEndReqSize, 12, "EndReqSize");
+
+
+uint64_t idleing_cycles = 0;
+uint64_t total_cycles = 0;
 
 class ServerContext : public BasicAppContext {
  public:
@@ -83,10 +101,23 @@ void server_func(erpc::Nexus *nexus) {
   rpc.set_pre_resp_msgbuf_size(FLAGS_resp_size);
   c.rpc_ = &rpc;
 
+
   printf("Latency: Server Loop Start\n");
+
+  uint64_t start_time = erpc::rdtsc();
   while (true) {
     rpc.run_event_loop(1000);
-    if (ctrl_c_pressed == 1) break;
+
+    /*** Jerry Idle Time Calculation ***/
+    if (!rpc.first_pkt_received)  start_time = erpc::rdtsc();
+    if (ctrl_c_pressed == 1){
+      double total_time_us = erpc::to_usec(erpc::rdtsc() - start_time, rpc.get_freq_ghz());
+      double processing_time_us = erpc::to_usec(rpc.cycle_in_nonIdle_processing, rpc.get_freq_ghz());
+
+      printf("Total Time is %f us, Processing Total Time is %f us, \x1b[32m%f%%\n", total_time_us, processing_time_us, 100*processing_time_us/total_time_us);
+      break;
+    };
+    /**********************************/
   }
 }
 
@@ -113,7 +144,7 @@ inline void send_req(ClientContext &c) {
   if (c.double_req_size_) {
     c.double_req_size_ = false;
     c.req_size_ *= 2;
-    if (c.req_size_ > kAppEndReqSize) c.req_size_ = kAppStartReqSize;
+    if (c.req_size_ > FLAGS_kAppEndReqSize) c.req_size_ = FLAGS_kAppStartReqSize;
 
     c.rpc_->resize_msg_buffer(&c.req_msgbuf_, c.req_size_);
     c.rpc_->resize_msg_buffer(&c.resp_msgbuf_, FLAGS_resp_size);
@@ -161,9 +192,9 @@ void client_func(erpc::Nexus *nexus) {
 
   rpc.retry_connect_on_invalid_rpc_id_ = true;
   c.rpc_ = &rpc;
-  c.req_size_ = kAppStartReqSize;
+  c.req_size_ = FLAGS_kAppStartReqSize;
 
-  c.req_msgbuf_ = rpc.alloc_msg_buffer_or_die(kAppEndReqSize);
+  c.req_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_kAppEndReqSize);
   c.resp_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_resp_size);
 
   connect_sessions(c);
