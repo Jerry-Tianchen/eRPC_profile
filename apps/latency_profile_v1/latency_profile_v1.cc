@@ -85,7 +85,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   // memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
-  printf("End reqHandler\n");
+  // printf("End reqHandler\n");
 }
 
 void server_func(erpc::Nexus *nexus) {
