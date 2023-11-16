@@ -4,6 +4,8 @@
 
 namespace erpc {
 
+double time_processing = 0.0;
+
 // The cont_etid parameter is passed only when the event loop processes the
 // background threads' queue of enqueue_request calls.
 template <class TTr>
@@ -232,7 +234,7 @@ void Rpc<TTr>::process_large_req_one_st(SSlot *sslot, const pkthdr_t *pkthdr) {
     enqueue_cr_st(sslot, pkthdr);
   }
 
-  copy_data_to_msgbuf(&req_msgbuf, pkthdr->pkt_num_, pkthdr);  // Omits header
+  // copy_data_to_msgbuf(&req_msgbuf, pkthdr->pkt_num_, pkthdr);  // Omits header
 
   // Invoke the request handler iff we have all the request packets
   if (sslot->server_info_.num_rx_ != req_msgbuf.num_pkts_) return;
@@ -245,6 +247,7 @@ void Rpc<TTr>::process_large_req_one_st(SSlot *sslot, const pkthdr_t *pkthdr) {
   assert(sslot->server_info_.req_type_ == kInvalidReqType);
   sslot->server_info_.req_type_ = pkthdr->req_type_;
   sslot->server_info_.req_func_type_ = req_func.req_func_type_;
+
 
   // req_msgbuf here is independent of the RX ring, so don't make another copy
   if (likely(!req_func.is_background())) {
