@@ -101,7 +101,7 @@ void server_func(erpc::Nexus *nexus) {
   rpc.set_pre_resp_msgbuf_size(FLAGS_resp_size);
   c.rpc_ = &rpc;
 
-
+  printf("Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
   printf("Latency: Server Loop Start\n");
 
   uint64_t start_time = erpc::rdtsc();
@@ -197,7 +197,7 @@ void client_func(erpc::Nexus *nexus) {
   c.req_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_kAppEndReqSize);
   c.resp_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_resp_size);
 
-  printf("Freqency running @ %f\n", c.rpc_->get_freq_ghz());
+  printf("Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
   connect_sessions(c);
 
   printf("Latency: Process %zu: Session connected. Starting work.\n",
