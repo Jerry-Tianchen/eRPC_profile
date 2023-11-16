@@ -85,7 +85,7 @@ void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   // memset(reinterpret_cast<char*>((req_handle->pre_resp_msgbuf_.buf_)), 'A', FLAGS_resp_size);
 
   c->rpc_->enqueue_response(req_handle, &req_handle->pre_resp_msgbuf_);
-  // printf("End reqHandler\n");
+  printf("End reqHandler\n");
 }
 
 void server_func(erpc::Nexus *nexus) {
@@ -174,6 +174,7 @@ void app_cont_func(void *_context, void *) {
            c->resp_msgbuf_.get_data_size());
   }
 
+
   hdr_record_value(c->latency_hist_,
                    static_cast<int64_t>(req_lat_us * kAppLatFac));
   c->latency_samples_++;
@@ -232,6 +233,8 @@ void client_func(erpc::Nexus *nexus) {
           hdr_max(c.latency_hist_) / kAppLatFac,
           c.latency_samples_ - c.latency_samples_prev_, c.latency_samples_,
           i / 1000);
+
+          hdr_reset(c.latency_hist_);
     }
     fflush(stdout);
 
