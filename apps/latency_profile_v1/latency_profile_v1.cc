@@ -101,7 +101,7 @@ void server_func(erpc::Nexus *nexus) {
   rpc.set_pre_resp_msgbuf_size(FLAGS_resp_size);
   c.rpc_ = &rpc;
 
-  printf("Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
+  printf("RDTSC Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
   printf("Latency: Server Loop Start\n");
 
   uint64_t start_time = erpc::rdtsc();
@@ -141,7 +141,7 @@ void connect_sessions(ClientContext &c) {
 
 void app_cont_func(void *, void *);
 inline void send_req(ClientContext &c) {
-  if (c.double_req_size_) {
+  if (unlikely(c.double_req_size_)) {
     c.double_req_size_ = false;
     c.req_size_ *= 2;
     if (c.req_size_ > FLAGS_kAppEndReqSize) c.req_size_ = FLAGS_kAppStartReqSize;
@@ -198,7 +198,7 @@ void client_func(erpc::Nexus *nexus) {
   c.req_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_kAppEndReqSize);
   c.resp_msgbuf_ = rpc.alloc_msg_buffer_or_die(FLAGS_resp_size);
 
-  printf("Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
+  printf("RDTSC Freqency running @ %f GHz\n", c.rpc_->get_freq_ghz());
   connect_sessions(c);
 
   printf("Latency: Process %zu: Session connected. Starting work.\n",
@@ -220,20 +220,15 @@ void client_func(erpc::Nexus *nexus) {
       fflush(stderr);
     } else {
       printf(
-          "%zu %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f "
-          "[%zu new samples, Bandwidth %f Gbps, %zu total samples, %zu seconds]\n",
+          "%10zu %10.1f %10.1f %10.1f %10.1f "
+          "[%10zu newSample, BW %10f Gbps %zu seconds]\n",
           c.req_size_,
           hdr_value_at_percentile(c.latency_hist_, 50.0) / kAppLatFac,
           hdr_value_at_percentile(c.latency_hist_, 5.0) / kAppLatFac,
           hdr_value_at_percentile(c.latency_hist_, 99) / kAppLatFac,
-          hdr_value_at_percentile(c.latency_hist_, 99.9) / kAppLatFac,
-          hdr_value_at_percentile(c.latency_hist_, 99.99) / kAppLatFac,
-          hdr_value_at_percentile(c.latency_hist_, 99.999) / kAppLatFac,
-          hdr_value_at_percentile(c.latency_hist_, 99.9999) / kAppLatFac,
           hdr_max(c.latency_hist_) / kAppLatFac,
           c.latency_samples_ - c.latency_samples_prev_, 
           (c.req_size_ * (c.latency_samples_ - c.latency_samples_prev_) * 8)/1000000000.0,
-          c.latency_samples_,
           i / 1000);
 
           hdr_reset(c.latency_hist_);
