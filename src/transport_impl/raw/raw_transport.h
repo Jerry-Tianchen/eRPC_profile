@@ -29,7 +29,7 @@ class RawTransport : public Transport {
 
   // Transport-specific constants
   static constexpr TransportType kTransportType = TransportType::kRaw;
-  static constexpr size_t kMTU = 1024;
+  static constexpr size_t kMTU = 4096;
 
   // Multi-packet RQ constants
   static constexpr size_t kLogNumStrides = 9;
