@@ -4,7 +4,7 @@
 #include <signal.h>
 
 #include <cstring>
-
+#include "../../JerryExp_macro.h"
 
 #include "../apps_common.h"
 #include "HdrHistogram_c/src/hdr_histogram.h"
@@ -21,10 +21,12 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
+
 static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
 bool warmup_package = true;
+
 // static constexpr size_t kAppStartReqSize = 8;
 // static constexpr size_t kAppEndReqSize = 12;
 
@@ -78,7 +80,7 @@ class ClientContext : public BasicAppContext {
 
 void req_handler(erpc::ReqHandle *req_handle, void *_context) {
   auto *c = static_cast<ServerContext *>(_context);
-
+  
   // printf("Start reqHandler\n");
   // erpc::Rpc<erpc::CTransport>::resize_msg_buffer(&(req_handle->pre_resp_msgbuf_),
   //                                                FLAGS_resp_size);
@@ -183,6 +185,7 @@ void app_cont_func(void *_context, void *) {
     c->latency_samples_++;
   }
 
+
   send_req(*c);
 }
 
@@ -215,7 +218,6 @@ void client_func(erpc::Nexus *nexus) {
     rpc.run_event_loop(kAppEvLoopMs);  // 1 second
 
     warmup_package = true;
-
     if (ctrl_c_pressed == 1) break;
     if (c.latency_samples_ == c.latency_samples_prev_) {
       printf("No new responses in %.2f seconds\n", kAppEvLoopMs / 1000.0);
@@ -238,6 +240,7 @@ void client_func(erpc::Nexus *nexus) {
       c.latency_samples_prev_ = c.latency_samples_;
       c.double_req_size_ = true;
     }
+
   }
 }
 
