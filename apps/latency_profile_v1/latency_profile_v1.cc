@@ -204,15 +204,14 @@ void client_func(erpc::Nexus *nexus) {
   printf("Latency: Process %zu: Session connected. Starting work.\n",
          FLAGS_process_id);
   printf(
-      "req_size median_us 5th_us 99th_us 99.9th_us 99.99th_us 99.999th_us "
-      "99.9999th_us max_us [new samples, total_samples in distribution, "
-      "total_time]\n");
+      "req_size median_us 5th_us 99th_us max_us [new samples -- bandwidth -- total_time]\n");
 
   send_req(c);
   for (size_t i = 0; i < FLAGS_test_ms; i += 1000) {
     rpc.run_event_loop(kAppEvLoopMs);  // 1 second
-    if (ctrl_c_pressed == 1) break;
 
+    uint64_t latency_test_middle_start = erpc::rdtsc();
+    if (ctrl_c_pressed == 1) break;
     if (c.latency_samples_ == c.latency_samples_prev_) {
       printf("No new responses in %.2f seconds\n", kAppEvLoopMs / 1000.0);
       fprintf(stderr, "No new responses in %.2f seconds\n",
@@ -245,6 +244,8 @@ void client_func(erpc::Nexus *nexus) {
 
     c.latency_samples_prev_ = c.latency_samples_;
     c.double_req_size_ = true;
+
+    printf("printing takes %f us\n", erpc::to_usec(erpc::rdtsc() - latency_test_middle_start, 2));
   }
 }
 
