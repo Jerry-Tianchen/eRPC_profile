@@ -141,7 +141,7 @@ void connect_sessions(ClientContext &c) {
 
 void app_cont_func(void *, void *);
 inline void send_req(ClientContext &c) {
-  if (unlikely(c.double_req_size_)) {
+  if (c.double_req_size_){
     c.double_req_size_ = false;
     c.req_size_ *= 2;
     if (c.req_size_ > FLAGS_kAppEndReqSize) c.req_size_ = FLAGS_kAppStartReqSize;
@@ -221,7 +221,7 @@ void client_func(erpc::Nexus *nexus) {
     } else {
       printf(
           "%10zu %10.1f %10.1f %10.1f %10.1f "
-          "[%10zu newSample, BW %10f Gbps %zu seconds]\n",
+          "[%10zu newSample -- BW %10f Gbps -- %zu seconds]\n",
           c.req_size_,
           hdr_value_at_percentile(c.latency_hist_, 50.0) / kAppLatFac,
           hdr_value_at_percentile(c.latency_hist_, 5.0) / kAppLatFac,
