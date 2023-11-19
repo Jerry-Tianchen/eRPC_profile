@@ -1,6 +1,7 @@
 #include <stdexcept>
 
 #include "rpc.h"
+#include "../../JerryExp_macro.h"
 
 namespace erpc {
 
@@ -234,7 +235,9 @@ void Rpc<TTr>::process_large_req_one_st(SSlot *sslot, const pkthdr_t *pkthdr) {
     enqueue_cr_st(sslot, pkthdr);
   }
 
-  // copy_data_to_msgbuf(&req_msgbuf, pkthdr->pkt_num_, pkthdr);  // Omits header
+  #ifndef DISABLE_process_large_req_one_st_copy
+  copy_data_to_msgbuf(&req_msgbuf, pkthdr->pkt_num_, pkthdr);  // Omits header
+  #endif
 
   // Invoke the request handler iff we have all the request packets
   if (sslot->server_info_.num_rx_ != req_msgbuf.num_pkts_) return;

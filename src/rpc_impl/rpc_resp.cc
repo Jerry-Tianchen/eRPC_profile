@@ -1,4 +1,5 @@
 #include "rpc.h"
+#include "../../JerryExp_macro.h"
 
 namespace erpc {
 
@@ -120,9 +121,11 @@ void Rpc<TTr>::process_resp_one_st(SSlot *sslot, const pkthdr_t *pkthdr,
     // Transmit remaining RFRs before response memcpy. We have credits.
     if (ci.num_tx_ != wire_pkts(req_msgbuf, resp_msgbuf)) kick_rfr_st(sslot);
 
+    #ifndef DISABLE_process_resp_one_st_copy
     // Hdr 0 was copied earlier, other headers are unneeded, so copy just data.
-    // const size_t pkt_idx = resp_ntoi(pkthdr->pkt_num_, req_msgbuf->num_pkts_);
-    // copy_data_to_msgbuf(resp_msgbuf, pkt_idx, pkthdr);
+    const size_t pkt_idx = resp_ntoi(pkthdr->pkt_num_, req_msgbuf->num_pkts_);
+    copy_data_to_msgbuf(resp_msgbuf, pkt_idx, pkthdr);
+    #endif
 
     if (ci.num_rx_ != wire_pkts(req_msgbuf, resp_msgbuf)) return;
     // Else fall through to invoke continuation
