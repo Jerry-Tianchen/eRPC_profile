@@ -222,6 +222,7 @@ void client_func(erpc::Nexus *nexus) {
       hdr_reset(c.latency_hist_);
       c.latency_samples_ = 0;
       c.latency_samples_prev_ = 0;
+      continue;
     }
 
     if (ctrl_c_pressed == 1) break;
@@ -242,12 +243,12 @@ void client_func(erpc::Nexus *nexus) {
           (c.req_size_ * (c.latency_samples_ - c.latency_samples_prev_) * 8)/1000000000.0,
           i / 1000);
 
-          hdr_reset(c.latency_hist_);
-
+      hdr_reset(c.latency_hist_);
+      c.latency_samples_prev_ = c.latency_samples_;
+      c.double_req_size_ = true;
     }
 
-    c.latency_samples_prev_ = c.latency_samples_;
-    c.double_req_size_ = true;
+
   }
 }
 
