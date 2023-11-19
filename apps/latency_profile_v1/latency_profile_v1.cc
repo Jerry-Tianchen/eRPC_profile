@@ -141,7 +141,7 @@ void connect_sessions(ClientContext &c) {
 
 void app_cont_func(void *, void *);
 inline void send_req(ClientContext &c) {
-  if (c.double_req_size_){
+  if (unlikely(.double_req_size_)){
     c.double_req_size_ = false;
     c.req_size_ *= 2;
     if (c.req_size_ > FLAGS_kAppEndReqSize) c.req_size_ = FLAGS_kAppStartReqSize;
