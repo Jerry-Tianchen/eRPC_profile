@@ -216,7 +216,6 @@ void client_func(erpc::Nexus *nexus) {
       printf("No new responses in %.2f seconds\n", kAppEvLoopMs / 1000.0);
       fprintf(stderr, "No new responses in %.2f seconds\n",
               kAppEvLoopMs / 1000.0);
-      fflush(stderr);
     } else {
       printf(
           "%10zu %10.1f %10.1f %10.1f %10.1f "
@@ -232,7 +231,6 @@ void client_func(erpc::Nexus *nexus) {
 
           hdr_reset(c.latency_hist_);
     }
-    fflush(stdout);
 
     // Warmup for the first two seconds. Also, reset percentiles every minute.
     const size_t seconds = i / 1000;
