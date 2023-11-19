@@ -215,6 +215,15 @@ void client_func(erpc::Nexus *nexus) {
     rpc.run_event_loop(kAppEvLoopMs);  // 1 second
 
     warmup_package = true;
+
+    // Warmup for the first two seconds. Also, reset percentiles every minute.
+    const size_t seconds = i / 1000;
+    if (seconds < 2 || (seconds % 60 == 0)) {
+      hdr_reset(c.latency_hist_);
+      c.latency_samples_ = 0;
+      c.latency_samples_prev_ = 0;
+    }
+
     if (ctrl_c_pressed == 1) break;
     if (c.latency_samples_ == c.latency_samples_prev_) {
       printf("No new responses in %.2f seconds\n", kAppEvLoopMs / 1000.0);
@@ -235,14 +244,6 @@ void client_func(erpc::Nexus *nexus) {
 
           hdr_reset(c.latency_hist_);
 
-    }
-
-    // Warmup for the first two seconds. Also, reset percentiles every minute.
-    const size_t seconds = i / 1000;
-    if (seconds < 2 || (seconds % 60 == 0)) {
-      hdr_reset(c.latency_hist_);
-      c.latency_samples_ = 0;
-      c.latency_samples_prev_ = 0;
     }
 
     c.latency_samples_prev_ = c.latency_samples_;
