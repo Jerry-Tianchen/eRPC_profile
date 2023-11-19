@@ -24,6 +24,7 @@
 static constexpr size_t kAppEvLoopMs = 1000;  // Duration of event loop
 static constexpr bool kAppVerbose = false;    // Print debug info on datapath
 static constexpr size_t kAppReqType = 1;      // eRPC request type
+bool warmup_package = true;
 // static constexpr size_t kAppStartReqSize = 8;
 // static constexpr size_t kAppEndReqSize = 12;
 
@@ -174,10 +175,13 @@ void app_cont_func(void *_context, void *) {
            c->resp_msgbuf_.get_data_size());
   }
 
-
-  hdr_record_value(c->latency_hist_,
-                   static_cast<int64_t>(req_lat_us * kAppLatFac));
-  c->latency_samples_++;
+  if (unlikely(warmup_package)){
+    warmup_package = false;
+  } else {
+    hdr_record_value(c->latency_hist_,
+                    static_cast<int64_t>(req_lat_us * kAppLatFac));
+    c->latency_samples_++;
+  }
 
   send_req(*c);
 }
@@ -210,7 +214,7 @@ void client_func(erpc::Nexus *nexus) {
   for (size_t i = 0; i < FLAGS_test_ms; i += 1000) {
     rpc.run_event_loop(kAppEvLoopMs);  // 1 second
 
-    uint64_t latency_test_middle_start = erpc::rdtsc();
+    warmup_package = true;
     if (ctrl_c_pressed == 1) break;
     if (c.latency_samples_ == c.latency_samples_prev_) {
       printf("No new responses in %.2f seconds\n", kAppEvLoopMs / 1000.0);
@@ -230,6 +234,7 @@ void client_func(erpc::Nexus *nexus) {
           i / 1000);
 
           hdr_reset(c.latency_hist_);
+
     }
 
     // Warmup for the first two seconds. Also, reset percentiles every minute.
@@ -242,8 +247,6 @@ void client_func(erpc::Nexus *nexus) {
 
     c.latency_samples_prev_ = c.latency_samples_;
     c.double_req_size_ = true;
-
-    printf("printing takes %f us\n", erpc::to_usec(erpc::rdtsc() - latency_test_middle_start, 2));
   }
 }
 
