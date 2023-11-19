@@ -221,7 +221,7 @@ void client_func(erpc::Nexus *nexus) {
     } else {
       printf(
           "%zu %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f "
-          "[%zu new samples, Bandwidth %ld Mbps, %zu total samples, %zu seconds]\n",
+          "[%zu new samples, Bandwidth %f Gbps, %zu total samples, %zu seconds]\n",
           c.req_size_,
           hdr_value_at_percentile(c.latency_hist_, 50.0) / kAppLatFac,
           hdr_value_at_percentile(c.latency_hist_, 5.0) / kAppLatFac,
@@ -232,7 +232,7 @@ void client_func(erpc::Nexus *nexus) {
           hdr_value_at_percentile(c.latency_hist_, 99.9999) / kAppLatFac,
           hdr_max(c.latency_hist_) / kAppLatFac,
           c.latency_samples_ - c.latency_samples_prev_, 
-          (c.req_size_ * (c.latency_samples_ - c.latency_samples_prev_) * 8)/1000000,
+          (c.req_size_ * (c.latency_samples_ - c.latency_samples_prev_) * 8)/1000000000.0,
           c.latency_samples_,
           i / 1000);
 
